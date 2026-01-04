@@ -6,61 +6,64 @@
     <title>Fruit Ninja Zen</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { margin: 0; overflow: hidden; touch-action: none; user-select: none; font-family: 'Comic Sans MS', cursive, sans-serif; }
-        canvas { display: block; }
-        #bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: -1; }
-        .ui { position: absolute; pointer-events: none; z-index: 10; color: white; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .btn { pointer-events: auto; cursor: pointer; background: linear-gradient(#34d399, #10b981); padding: 18px 50px; border-radius: 99px; font-weight: bold; font-size: 28px; border: none; color: white; box-shadow: 0 6px 0 #166534; transition: all 0.15s; }
-        .btn:active { transform: translateY(4px); box-shadow: 0 2px 0 #166534; }
+        body { margin: 0; overflow: hidden; touch-action: none; user-select: none; background: #87CEEB; }
+        canvas { display: block; position: absolute; top: 0; left: 0; }
+        #bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: -1; opacity: 0.8; }
+        .ui { position: absolute; pointer-events: none; z-index: 10; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .ui > * { pointer-events: auto; }
+        .btn { cursor: pointer; background: linear-gradient(#34d399, #10b981); padding: 20px 60px; border-radius: 99px; font-weight: bold; font-size: 32px; border: none; color: white; box-shadow: 0 8px 0 #166534; transition: all 0.2s; }
+        .btn:active { transform: translateY(6px); box-shadow: 0 2px 0 #166534; }
         .hidden { display: none !important; }
-        .score-box { position: absolute; top: 20px; left: 20px; text-align: left; background: rgba(0,0,0,0.4); padding: 10px 20px; border-radius: 20px; backdrop-blur-sm; }
+        .score-box { position: absolute; top: 20px; left: 20px; background: rgba(0,0,0,0.5); padding: 12px 24px; border-radius: 20px; backdrop-blur-sm; }
     </style>
 </head>
-<body class="bg-gradient-to-b from-sky-400 to-sky-600">
-    <img id="bg" src="https://images.unsplash.com/photo-1580196969802-93c67c6df226?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80" alt="sky background">
-    
-    <div id="menu" class="ui bg-black/50 backdrop-blur-md">
-        <h1 class="text-7xl font-black text-yellow-300 mb-10 rotate-[-5deg] drop-shadow-2xl tracking-wider">FRUIT NINJA</h1>
-        <p class="text-white mb-12 text-center px-8 text-xl">Режим Дзен: Режь фрукты, избегай бомб!<br>Пропущенные фрукты не штрафуют.</p>
-        <button class="btn shadow-2xl" onclick="startGame()">ИГРАТЬ</button>
+<body>
+    <img id="bg" src="https://images.unsplash.com/photo-1580196969802-93c67c6df226?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80" alt="sky">
+
+    <div id="menu" class="ui bg-black/50 backdrop-blur-lg">
+        <h1 class="text-7xl font-black text-yellow-300 mb-12 drop-shadow-2xl tracking-widest">FRUIT NINJA</h1>
+        <p class="text-white mb-12 text-center px-8 text-2xl">Режим Дзен<br>Режь фрукты — избегай бомб!</p>
+        <button class="btn shadow-2xl" id="playBtn">ИГРАТЬ</button>
     </div>
-    
+
     <div id="game-ui" class="ui hidden">
-        <div class="score-box">
-            <div class="text-4xl font-bold text-yellow-300 drop-shadow-lg">Счет: <span id="score">0</span></div>
-            <div class="text-lg opacity-80">Рекорд: <span id="best">0</span></div>
+        <div class="score-box text-white">
+            <div class="text-4xl font-bold text-yellow-300">Счет: <span id="score">0</span></div>
+            <div class="text-xl opacity-80">Рекорд: <span id="best">0</span></div>
         </div>
     </div>
-    
+
     <div id="over" class="ui hidden bg-red-900/90 backdrop-blur-lg">
-        <h2 class="text-7xl font-black text-white mb-6 drop-shadow-2xl">БУУУМ!</h2>
-        <div class="bg-black/50 p-8 rounded-3xl mb-10 text-center min-w-[250px] shadow-2xl">
-            <p class="text-gray-200 text-xl">Твой счет</p>
-            <p class="text-7xl font-black text-yellow-300" id="final-score">0</p>
+        <h2 class="text-7xl font-black text-white mb-8 drop-shadow-2xl">БУУУМ!</h2>
+        <div class="bg-black/60 p-10 rounded-3xl mb-12 text-center shadow-2xl">
+            <p class="text-gray-200 text-2xl mb-4">Твой счёт</p>
+            <p class="text-8xl font-black text-yellow-300" id="final-score">0</p>
         </div>
-        <button class="btn shadow-2xl" onclick="startGame()">ЕЩЕ РАЗ</button>
+        <button class="btn shadow-2xl" id="restartBtn">ЕЩЕ РАЗ</button>
     </div>
-    
+
     <canvas id="c"></canvas>
 
-<audio id="music" loop>
-    <source src="https://cdn.pixabay.com/download/audio/2022/08/15/audio_0d3b7f5c5a.mp3?filename=asian-epic-11856.mp3" type="audio/mpeg">
-</audio>
-<audio id="sliceSound">
-    <source src="https://cdn.pixabay.com/download/audio/2023/06/20/audio_8f2e0b7e3d.mp3?filename=fruit-slice-103052.mp3" type="audio/mpeg">
-</audio>
-<audio id="bombSound">
-    <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_57b3c8e8d9.mp3?filename=bomb-explosion-102879.mp3" type="audio/mpeg">
-</audio>
-<audio id="splashSound">
-    <source src="https://cdn.pixabay.com/download/audio/2022/05/18/audio_4e5f2d8f8b.mp3?filename=water-splash-96428.mp3" type="audio/mpeg">
-</audio>
+    <audio id="music" loop preload="auto">
+        <source src="https://cdn.pixabay.com/download/audio/2022/08/15/audio_0d3b7f5c5a.mp3?filename=asian-epic-11856.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="sliceSound" preload="auto">
+        <source src="https://cdn.pixabay.com/download/audio/2023/06/20/audio_8f2e0b7e3d.mp3?filename=fruit-slice-103052.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="bombSound" preload="auto">
+        <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_57b3c8e8d9.mp3?filename=bomb-explosion-102879.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="splashSound" preload="auto">
+        <source src="https://cdn.pixabay.com/download/audio/2022/05/18/audio_4e5f2d8f8b.mp3?filename=water-splash-96428.mp3" type="audio/mpeg">
+    </audio>
 
 <script>
 const canvas = document.getElementById('c');
 const ctx = canvas.getContext('2d');
-let canvasW, canvasH, score = 0, best = localStorage.getItem('fn_best') || 0;
-let isPlaying = false, fruits = [], particles = [], blade = [], frames = 0;
+let W, H, score = 0, best = localStorage.getItem('fn_best') || 0;
+let isPlaying = false, fruits = [], particles = [], trail = [];
+let frames = 0;
+let audioUnlocked = false;
 
 const music = document.getElementById('music');
 const sliceSound = document.getElementById('sliceSound');
@@ -68,54 +71,51 @@ const bombSound = document.getElementById('bombSound');
 const splashSound = document.getElementById('splashSound');
 
 function resize() {
-    canvasW = canvas.width = window.innerWidth;
-    canvasH = canvas.height = window.innerHeight;
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
 }
 window.addEventListener('resize', resize);
 resize();
 
+// Разблокировка аудио после первого взаимодействия
+function unlockAudio() {
+    if (audioUnlocked) return;
+    audioUnlocked = true;
+    music.volume = 0.4;
+    music.play().catch(() => {});
+}
+document.getElementById('playBtn').addEventListener('click', unlockAudio);
+document.getElementById('restartBtn').addEventListener('click', unlockAudio);
+
 class Fruit {
-    constructor() {
-        this.reset();
-    }
+    constructor() { this.reset(); }
     reset() {
-        this.x = Math.random() * (canvasW - 100) + 50;
-        this.y = canvasH + 80;
-        this.vx = (Math.random() - 0.5) * 6;
-        this.vy = -(Math.random() * 8 + 12);
-        this.r = 40;
+        this.x = Math.random() * (W - 120) + 60;
+        this.y = H + 80;
+        this.vx = (Math.random() - 0.5) * 7;
+        this.vy = -(Math.random() * 8 + 13);
+        this.r = 42;
         this.type = Math.random() < 0.18 ? 'bomb' : 'fruit';
-        this.color = this.type === 'bomb' ? '#111' : `hsl(${Math.random() * 60 + 10}, 80%, 55%)`; // более фруктовые цвета
+        this.color = this.type === 'bomb' ? '#111' : `hsl(${Math.random() * 60 + 20}, 85%, 60%)`;
         this.angle = 0;
-        this.rot = Math.random() * 0.15 - 0.075;
-        this.sliced = false;
+        this.rot = Math.random() * 0.2 - 0.1;
     }
     update() {
-        this.x += this.vx;
-        this.y += this.vy;
-        this.vy += 0.15; // гравитация
-        this.angle += this.rot;
+        this.x += this.vx; this.y += this.vy; this.vy += 0.18; this.angle += this.rot;
     }
     draw() {
         ctx.save();
         ctx.translate(this.x, this.y);
         ctx.rotate(this.angle);
-        ctx.shadowBlur = 15;
-        ctx.shadowColor = 'rgba(0,0,0,0.5)';
+        ctx.shadowBlur = 20; ctx.shadowColor = 'rgba(0,0,0,0.4)';
         ctx.fillStyle = this.color;
-        ctx.beginPath();
-        ctx.arc(0, 0, this.r, 0, Math.PI * 2);
-        ctx.fill();
-        
-        if(this.type === 'bomb') {
-            ctx.fillStyle = '#f00';
-            ctx.beginPath();
-            ctx.arc(0, -10, 12, 0, Math.PI*2);
-            ctx.fill();
-            ctx.fillStyle = '#ff0';
-            ctx.beginPath();
-            ctx.arc(0, -10, 6 + Math.sin(frames*0.3)*3, 0, Math.PI*2);
-            ctx.fill();
+        ctx.beginPath(); ctx.arc(0, 0, this.r, 0, Math.PI*2); ctx.fill();
+
+        if (this.type === 'bomb') {
+            ctx.fillStyle = '#ff2200';
+            ctx.beginPath(); ctx.arc(0, -12, 14, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle = '#ffaa00';
+            ctx.beginPath(); ctx.arc(0, -12, 8 + Math.sin(frames*0.3)*4, 0, Math.PI*2); ctx.fill();
         }
         ctx.restore();
     }
@@ -124,14 +124,14 @@ class Fruit {
 class Half {
     constructor(f, side) {
         Object.assign(this, f);
-        this.vx += side * 5;
-        this.vy -= Math.random() * 5;
+        this.vx += side * 6;
+        this.vy -= Math.random() * 6;
         this.side = side;
         this.life = 1;
     }
     update() {
-        this.x += this.vx; this.y += this.vy; this.vy += 0.25; this.angle += this.rot * 3;
-        this.life -= 0.015;
+        this.x += this.vx; this.y += this.vy; this.vy += 0.3; this.angle += this.rot * 4;
+        this.life -= 0.018;
     }
     draw() {
         ctx.save();
@@ -140,150 +140,155 @@ class Half {
         ctx.rotate(this.angle);
         ctx.fillStyle = this.color;
         ctx.beginPath();
-        const angle = this.side === 1 ? Math.PI/2 : -Math.PI/2;
-        ctx.arc(0, 0, this.r, angle - Math.PI/2, angle + Math.PI/2);
-        ctx.lineTo(0,0);
+        ctx.arc(0, 0, this.r, this.side > 0 ? 0 : Math.PI, this.side > 0 ? Math.PI : 2*Math.PI);
+        ctx.lineTo(0, 0);
         ctx.fill();
         ctx.restore();
     }
 }
 
 function startGame() {
-    score = 0; fruits = []; particles = []; isPlaying = true;
+    unlockAudio();
+    score = 0; fruits = []; particles = []; trail = []; isPlaying = true;
     document.getElementById('menu').classList.add('hidden');
     document.getElementById('over').classList.add('hidden');
     document.getElementById('game-ui').classList.remove('hidden');
     document.getElementById('score').innerText = score;
     document.getElementById('best').innerText = best;
-    
-    music.currentTime = 0;
-    music.play().catch(() => {});
     loop();
 }
 
 function playSound(sound) {
+    if (!audioUnlocked) return;
     sound.currentTime = 0;
     sound.play().catch(() => {});
+    if (navigator.vibrate) navigator.vibrate(30);
 }
 
-function slice(f, i) {
-    if(f.type === 'bomb') {
+function slice(fruit, index) {
+    if (fruit.type === 'bomb') {
         isPlaying = false;
         playSound(bombSound);
-        if(score > best) { best = score; localStorage.setItem('fn_best', best); document.getElementById('best').innerText = best; }
+        if (score > best) {
+            best = score;
+            localStorage.setItem('fn_best', best);
+            document.getElementById('best').innerText = best;
+        }
         document.getElementById('final-score').innerText = score;
         document.getElementById('over').classList.remove('hidden');
         music.pause();
         return;
     }
+
     score++;
     document.getElementById('score').innerText = score;
     playSound(sliceSound);
     playSound(splashSound);
-    fruits.splice(i, 1);
-    particles.push(new Half(f, 1), new Half(f, -1));
-    
-    for(let j=0; j<20; j++) {
-        const p = {
-            x: f.x, y: f.y,
-            vx: (Math.random()-0.5)*15, vy: (Math.random()-0.8)*15,
-            r: Math.random()*8 + 3, c: f.color, l: 1
-        };
-        p.update = function() { this.x += this.vx; this.y += this.vy; this.vy += 0.3; this.l -= 0.03; };
-        p.draw = function() { 
-            ctx.globalAlpha = this.l;
-            ctx.fillStyle = this.c; 
-            ctx.beginPath(); 
-            ctx.arc(this.x, this.y, this.r, 0, Math.PI*2); 
-            ctx.fill(); 
-        };
-        particles.push(p);
+
+    fruits.splice(index, 1);
+    particles.push(new Half(fruit, 1), new Half(fruit, -1));
+
+    for (let i = 0; i < 25; i++) {
+        particles.push({
+            x: fruit.x, y: fruit.y,
+            vx: (Math.random() - 0.5) * 20, vy: (Math.random() - 0.8) * 20,
+            r: Math.random() * 10 + 4, c: fruit.color, life: 1,
+            update() { this.x += this.vx; this.y += this.vy; this.vy += 0.4; this.life -= 0.03; },
+            draw() {
+                ctx.globalAlpha = this.life;
+                ctx.fillStyle = this.c;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.r, 0, Math.PI*2);
+                ctx.fill();
+            }
+        });
     }
 }
 
 function loop() {
-    if(!isPlaying) return;
+    if (!isPlaying) return;
     frames++;
-    ctx.clearRect(0, 0, canvasW, canvasH); // фон прозрачный, виден background
-    
-    if(frames % 55 === 0) fruits.push(new Fruit());
-    
-    for(let i = fruits.length-1; i>=0; i--) {
-        let f = fruits[i];
-        f.update(); f.draw();
-        
-        if(blade.length > 3) {
-            for(let j=1; j<blade.length; j++) {
-                const prev = blade[j-1];
-                const curr = blade[j];
-                const dx = curr.x - prev.x;
-                const dy = curr.y - prev.y;
-                const len = Math.hypot(dx, dy);
-                if(len > 0) {
-                    for(let k=0; k<len; k+=10) {
-                        const px = prev.x + (dx/len)*k;
-                        const py = prev.y + (dy/len)*k;
-                        if(Math.hypot(f.x - px, f.y - py) < f.r + 10) {
-                            slice(f, i);
-                            break;
-                        }
-                    }
+    ctx.clearRect(0, 0, W, H);
+
+    if (frames % 50 === 0) fruits.push(new Fruit());
+
+    // Обновление и отрисовка фруктов + проверка разреза
+    for (let i = fruits.length - 1; i >= 0; i--) {
+        const f = fruits[i];
+        f.update();
+        f.draw();
+
+        // Проверка пересечения с траекторией меча
+        if (trail.length > 2) {
+            for (let j = 1; j < trail.length; j++) {
+                const p1 = trail[j-1], p2 = trail[j];
+                const dist = distanceToSegment(f.x, f.y, p1.x, p1.y, p2.x, p2.y);
+                if (dist < f.r + 8) {
+                    slice(f, i);
+                    break;
                 }
             }
         }
-        
-        if(f.y > canvasH + 150) fruits.splice(i, 1);
+
+        if (f.y > H + 150) fruits.splice(i, 1);
     }
-    
-    for(let i = particles.length-1; i>=0; i--) {
-        let p = particles[i];
-        p.update(); p.draw();
-        if(p.y > canvasH + 150 || p.l <= 0) particles.splice(i, 1);
+
+    // Частицы
+    for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.update();
+        p.draw();
+        if (p.life <= 0 || p.y > H + 150) particles.splice(i, 1);
     }
-    
-    // Красивый след меча
-    if(blade.length > 1) {
-        const grad = ctx.createLinearGradient(blade[0].x, blade[0].y, blade[blade.length-1].x, blade[blade.length-1].y);
-        grad.addColorStop(0, 'rgba(0,255,255,0)');
-        grad.addColorStop(0.5, 'rgba(0,255,255,0.8)');
-        grad.addColorStop(1, 'rgba(0,255,255,0)');
-        ctx.strokeStyle = grad;
-        ctx.lineWidth = 8;
+
+    // Отрисовка следа меча
+    if (trail.length > 1) {
+        ctx.strokeStyle = '#00ffff';
+        ctx.lineWidth = 10;
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
-        ctx.shadowBlur = 20;
-        ctx.shadowColor = '#0ff';
+        ctx.shadowBlur = 30;
+        ctx.shadowColor = '#00ffff';
         ctx.beginPath();
-        ctx.moveTo(blade[0].x, blade[0].y);
-        for(let p of blade) ctx.lineTo(p.x, p.y);
+        ctx.moveTo(trail[0].x, trail[0].y);
+        for (let p of trail) ctx.lineTo(p.x, p.y);
         ctx.stroke();
     }
-    
+
     requestAnimationFrame(loop);
 }
 
-// Улучшенная обработка ввода (мышь + тач)
-let touching = false;
-const inputHandler = (e) => {
-    e.preventDefault();
-    const touches = e.touches || [e];
-    blade = [];
-    touching = e.type !== 'mouseup' && e.type !== 'touchend';
-    
-    for(let touch of touches) {
-        const x = touch.clientX || touch.pageX;
-        const y = touch.clientY || touch.pageY;
-        blade.push({x, y});
+// Вспомогательная функция расстояния от точки до отрезка
+function distanceToSegment(px, py, x1, y1, x2, y2) {
+    const dx = x2 - x1, dy = y2 - y1;
+    const l2 = dx*dx + dy*dy;
+    if (l2 === 0) return Math.hypot(px - x1, py - y1);
+    let t = ((px - x1) * dx + (py - y1) * dy) / l2;
+    t = Math.max(0, Math.min(1, t));
+    return Math.hypot(px - (x1 + t * dx), py - (y1 + t * dy));
+}
+
+// Надёжная обработка ввода (мышь + тач)
+const pointer = { x: 0, y: 0, down: false };
+
+function updateTrail(x, y) {
+    pointer.x = x; pointer.y = y;
+    if (isPlaying) {
+        trail.push({ x, y });
+        if (trail.length > 20) trail.shift();
     }
-};
+}
 
-window.addEventListener('mousedown', inputHandler);
-window.addEventListener('mousemove', (e) => { if(touching) inputHandler(e); });
-window.addEventListener('mouseup', inputHandler);
+window.addEventListener('mousedown', e => { pointer.down = true; updateTrail(e.clientX, e.clientY); unlockAudio(); });
+window.addEventListener('mousemove', e => { if (pointer.down) updateTrail(e.clientX, e.clientY); });
+window.addEventListener('mouseup', () => { pointer.down = false; trail = []; });
 
-window.addEventListener('touchstart', inputHandler, {passive: false});
-window.addEventListener('touchmove', inputHandler, {passive: false});
-window.addEventListener('touchend', inputHandler, {passive: false});
+window.addEventListener('touchstart', e => { unlockAudio(); for (let t of e.touches) updateTrail(t.clientX, t.clientY); }, { passive: false });
+window.addEventListener('touchmove', e => { e.preventDefault(); trail = []; for (let t of e.touches) updateTrail(t.clientX, t.clientY); }, { passive: false });
+window.addEventListener('touchend', () => { trail = []; });
+
+document.getElementById('playBtn').onclick = startGame;
+document.getElementById('restartBtn').onclick = startGame;
 </script>
 </body>
 </html>
