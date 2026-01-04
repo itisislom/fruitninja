@@ -3,119 +3,212 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Fruit Ninja Zen</title>
+    <title>Fruit Ninja Zen Plus</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { margin: 0; overflow: hidden; touch-action: none; user-select: none; background: #87CEEB; }
-        canvas { display: block; position: absolute; top: 0; left: 0; }
-        #bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: -1; opacity: 0.8; }
-        .ui { position: absolute; pointer-events: none; z-index: 10; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .ui > * { pointer-events: auto; }
-        .btn { cursor: pointer; background: linear-gradient(#34d399, #10b981); padding: 20px 60px; border-radius: 99px; font-weight: bold; font-size: 32px; border: none; color: white; box-shadow: 0 8px 0 #166534; transition: all 0.2s; }
-        .btn:active { transform: translateY(6px); box-shadow: 0 2px 0 #166534; }
-        .hidden { display: none !important; }
-        .score-box { position: absolute; top: 20px; left: 20px; background: rgba(0,0,0,0.5); padding: 12px 24px; border-radius: 20px; backdrop-blur-sm; }
+        body { 
+            margin: 0; 
+            overflow: hidden; 
+            background: radial-gradient(circle, #2c3e50 0%, #000000 100%); 
+            touch-action: none; 
+            user-select: none; 
+            font-family: 'Segoe UI', Roboto, sans-serif; 
+        }
+        canvas { display: block; }
+        .ui { 
+            position: absolute; 
+            pointer-events: none; 
+            z-index: 10; 
+            color: white; 
+            width: 100%; 
+            height: 100%; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            transition: opacity 0.3s;
+        }
+        .btn { 
+            pointer-events: auto; 
+            cursor: pointer; 
+            background: linear-gradient(to bottom, #4ade80, #16a34a); 
+            padding: 18px 50px; 
+            border-radius: 99px; 
+            font-weight: 900; 
+            font-size: 28px; 
+            border: 3px solid #bbf7d0; 
+            color: white; 
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3), inset 0 -4px 0 rgba(0,0,0,0.2); 
+            transition: all 0.1s;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        .btn:active { transform: scale(0.95); box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .hidden { opacity: 0; pointer-events: none; }
+        .score-box { 
+            position: absolute; 
+            top: 20px; 
+            left: 20px; 
+            text-align: left; 
+            background: rgba(0,0,0,0.3);
+            padding: 10px 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        @keyframes shake {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            10% { transform: translate(-1px, -2px) rotate(-1deg); }
+            20% { transform: translate(-3px, 0px) rotate(1deg); }
+            30% { transform: translate(3px, 2px) rotate(0deg); }
+            40% { transform: translate(1px, -1px) rotate(1deg); }
+            50% { transform: translate(-1px, 2px) rotate(-1deg); }
+            60% { transform: translate(-3px, 1px) rotate(0deg); }
+            70% { transform: translate(3px, 1px) rotate(-1deg); }
+            80% { transform: translate(-1px, -1px) rotate(1deg); }
+            90% { transform: translate(1px, 2px) rotate(0deg); }
+            100% { transform: translate(1px, -2px) rotate(-1deg); }
+        }
+        .shake-effect { animation: shake 0.5s; }
     </style>
 </head>
 <body>
-    <img id="bg" src="https://images.unsplash.com/photo-1580196969802-93c67c6df226?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80" alt="sky">
 
-    <div id="menu" class="ui bg-black/50 backdrop-blur-lg">
-        <h1 class="text-7xl font-black text-yellow-300 mb-12 drop-shadow-2xl tracking-widest">FRUIT NINJA</h1>
-        <p class="text-white mb-12 text-center px-8 text-2xl">Режим Дзен<br>Режь фрукты — избегай бомб!</p>
-        <button class="btn shadow-2xl" id="playBtn">ИГРАТЬ</button>
+    <div id="menu" class="ui bg-black/40 backdrop-blur-md">
+        <h1 class="text-7xl font-black text-yellow-400 mb-2 rotate-[-2deg] drop-shadow-[0_5px_15px_rgba(250,204,21,0.4)] uppercase">Ninja</h1>
+        <h2 class="text-4xl font-black text-white mb-8 tracking-[10px] uppercase">Zen Plus</h2>
+        <p class="text-white/80 mb-10 text-center px-6 max-w-md italic">Режь фрукты, избегай бомб. <br>Чистое искусство меча.</p>
+        <button id="playBtn" class="btn">Играть</button>
     </div>
 
     <div id="game-ui" class="ui hidden">
-        <div class="score-box text-white">
-            <div class="text-4xl font-bold text-yellow-300">Счет: <span id="score">0</span></div>
-            <div class="text-xl opacity-80">Рекорд: <span id="best">0</span></div>
+        <div class="score-box">
+            <div class="text-sm uppercase tracking-widest text-white/60">Счет</div>
+            <div class="text-4xl font-black text-yellow-400"><span id="score">0</span></div>
+            <div class="text-xs mt-1 opacity-50">Рекорд: <span id="best">0</span></div>
         </div>
     </div>
 
-    <div id="over" class="ui hidden bg-red-900/90 backdrop-blur-lg">
-        <h2 class="text-7xl font-black text-white mb-8 drop-shadow-2xl">БУУУМ!</h2>
-        <div class="bg-black/60 p-10 rounded-3xl mb-12 text-center shadow-2xl">
-            <p class="text-gray-200 text-2xl mb-4">Твой счёт</p>
-            <p class="text-8xl font-black text-yellow-300" id="final-score">0</p>
+    <div id="over" class="ui hidden bg-red-950/90 backdrop-blur-xl">
+        <h2 class="text-7xl font-black text-white mb-6 uppercase italic">Бум!</h2>
+        <div class="bg-white/10 p-8 rounded-3xl mb-10 text-center border border-white/10 shadow-2xl">
+            <p class="text-white/60 text-sm tracking-widest uppercase mb-2">Результат</p>
+            <p class="text-7xl font-black text-yellow-400" id="final-score">0</p>
         </div>
-        <button class="btn shadow-2xl" id="restartBtn">ЕЩЕ РАЗ</button>
+        <button id="restartBtn" class="btn">Заново</button>
     </div>
 
     <canvas id="c"></canvas>
 
-    <audio id="music" loop preload="auto">
-        <source src="https://cdn.pixabay.com/download/audio/2022/08/15/audio_0d3b7f5c5a.mp3?filename=asian-epic-11856.mp3" type="audio/mpeg">
-    </audio>
-    <audio id="sliceSound" preload="auto">
-        <source src="https://cdn.pixabay.com/download/audio/2023/06/20/audio_8f2e0b7e3d.mp3?filename=fruit-slice-103052.mp3" type="audio/mpeg">
-    </audio>
-    <audio id="bombSound" preload="auto">
-        <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_57b3c8e8d9.mp3?filename=bomb-explosion-102879.mp3" type="audio/mpeg">
-    </audio>
-    <audio id="splashSound" preload="auto">
-        <source src="https://cdn.pixabay.com/download/audio/2022/05/18/audio_4e5f2d8f8b.mp3?filename=water-splash-96428.mp3" type="audio/mpeg">
-    </audio>
-
 <script>
+/**
+ * Звуковой движок (Web Audio API)
+ */
+const AudioEngine = {
+    ctx: null,
+    masterGain: null,
+    init() {
+        if (this.ctx) return;
+        this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        this.masterGain = this.ctx.createGain();
+        this.masterGain.connect(this.ctx.destination);
+    },
+    playTone(freq, type, duration, vol) {
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const g = this.ctx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+        g.gain.setValueAtTime(vol, this.ctx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
+        osc.connect(g);
+        g.connect(this.masterGain);
+        osc.start();
+        osc.stop(this.ctx.currentTime + duration);
+    },
+    playSlice() {
+        this.playTone(400 + Math.random() * 400, 'triangle', 0.2, 0.1);
+    },
+    playBoom() {
+        this.playTone(100, 'sawtooth', 1.0, 0.3);
+        this.playTone(50, 'sine', 1.5, 0.5);
+    },
+    playAmbient() {
+        const osc = this.ctx.createOscillator();
+        const g = this.ctx.createGain();
+        osc.frequency.setValueAtTime(110, this.ctx.currentTime);
+        g.gain.setValueAtTime(0.02, this.ctx.currentTime);
+        osc.connect(g);
+        g.connect(this.masterGain);
+        osc.start();
+    }
+};
+
 const canvas = document.getElementById('c');
 const ctx = canvas.getContext('2d');
-let W, H, score = 0, best = localStorage.getItem('fn_best') || 0;
-let isPlaying = false, fruits = [], particles = [], trail = [];
-let frames = 0;
-let audioUnlocked = false;
-
-const music = document.getElementById('music');
-const sliceSound = document.getElementById('sliceSound');
-const bombSound = document.getElementById('bombSound');
-const splashSound = document.getElementById('splashSound');
+let canvasW, canvasH, score = 0, best = localStorage.getItem('fn_best_plus') || 0;
+let isPlaying = false, fruits = [], particles = [], blade = [], frames = 0;
 
 function resize() {
-    W = canvas.width = window.innerWidth;
-    H = canvas.height = window.innerHeight;
+    canvasW = canvas.width = window.innerWidth;
+    canvasH = canvas.height = window.innerHeight;
 }
 window.addEventListener('resize', resize);
 resize();
 
-// Разблокировка аудио после первого взаимодействия
-function unlockAudio() {
-    if (audioUnlocked) return;
-    audioUnlocked = true;
-    music.volume = 0.4;
-    music.play().catch(() => {});
-}
-document.getElementById('playBtn').addEventListener('click', unlockAudio);
-document.getElementById('restartBtn').addEventListener('click', unlockAudio);
-
 class Fruit {
-    constructor() { this.reset(); }
+    constructor() {
+        this.reset();
+    }
     reset() {
-        this.x = Math.random() * (W - 120) + 60;
-        this.y = H + 80;
-        this.vx = (Math.random() - 0.5) * 7;
-        this.vy = -(Math.random() * 8 + 13);
-        this.r = 42;
-        this.type = Math.random() < 0.18 ? 'bomb' : 'fruit';
-        this.color = this.type === 'bomb' ? '#111' : `hsl(${Math.random() * 60 + 20}, 85%, 60%)`;
+        this.x = Math.random() * (canvasW - 100) + 50;
+        this.y = canvasH + 50;
+        this.vx = (Math.random() - 0.5) * 6;
+        this.vy = -(Math.random() * 5 + 12);
+        this.r = 38;
+        this.type = Math.random() < 0.15 ? 'bomb' : 'fruit';
+        this.color = this.type === 'bomb' ? '#1a1a1a' : `hsl(${Math.random() * 360}, 80%, 50%)`;
         this.angle = 0;
-        this.rot = Math.random() * 0.2 - 0.1;
+        this.rot = Math.random() * 0.1 - 0.05;
     }
     update() {
-        this.x += this.vx; this.y += this.vy; this.vy += 0.18; this.angle += this.rot;
+        this.x += this.vx;
+        this.y += this.vy;
+        this.vy += 0.15;
+        this.angle += this.rot;
     }
     draw() {
         ctx.save();
         ctx.translate(this.x, this.y);
         ctx.rotate(this.angle);
-        ctx.shadowBlur = 20; ctx.shadowColor = 'rgba(0,0,0,0.4)';
+        
+        // Тень
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = 'rgba(0,0,0,0.5)';
+        
         ctx.fillStyle = this.color;
-        ctx.beginPath(); ctx.arc(0, 0, this.r, 0, Math.PI*2); ctx.fill();
-
-        if (this.type === 'bomb') {
-            ctx.fillStyle = '#ff2200';
-            ctx.beginPath(); ctx.arc(0, -12, 14, 0, Math.PI*2); ctx.fill();
-            ctx.fillStyle = '#ffaa00';
-            ctx.beginPath(); ctx.arc(0, -12, 8 + Math.sin(frames*0.3)*4, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath();
+        ctx.arc(0, 0, this.r, 0, Math.PI * 2);
+        ctx.fill();
+        
+        if(this.type === 'bomb') {
+            ctx.fillStyle = '#ff0000';
+            ctx.beginPath();
+            ctx.arc(0, 0, 12 + Math.sin(frames*0.3)*4, 0, Math.PI * 2);
+            ctx.fill();
+            // Фитиль
+            ctx.strokeStyle = '#555';
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.moveTo(0, -this.r);
+            ctx.quadraticCurveTo(10, -this.r-10, 5, -this.r-20);
+            ctx.stroke();
+        } else {
+            // Блик
+            ctx.fillStyle = 'rgba(255,255,255,0.3)';
+            ctx.beginPath();
+            ctx.arc(-this.r/3, -this.r/3, this.r/4, 0, Math.PI*2);
+            ctx.fill();
         }
         ctx.restore();
     }
@@ -124,32 +217,40 @@ class Fruit {
 class Half {
     constructor(f, side) {
         Object.assign(this, f);
-        this.vx += side * 6;
-        this.vy -= Math.random() * 6;
+        this.vx += side * 4;
+        this.vy -= 2;
         this.side = side;
         this.life = 1;
     }
     update() {
-        this.x += this.vx; this.y += this.vy; this.vy += 0.3; this.angle += this.rot * 4;
-        this.life -= 0.018;
+        this.x += this.vx; this.y += this.vy; this.vy += 0.25; this.angle += this.rot * 3;
+        this.life -= 0.015;
     }
     draw() {
         ctx.save();
-        ctx.globalAlpha = this.life;
         ctx.translate(this.x, this.y);
         ctx.rotate(this.angle);
+        ctx.globalAlpha = this.life;
         ctx.fillStyle = this.color;
         ctx.beginPath();
-        ctx.arc(0, 0, this.r, this.side > 0 ? 0 : Math.PI, this.side > 0 ? Math.PI : 2*Math.PI);
-        ctx.lineTo(0, 0);
+        // Рисуем половинку
+        if (this.side === 1) ctx.arc(0, 0, this.r, -Math.PI/2, Math.PI/2);
+        else ctx.arc(0, 0, this.r, Math.PI/2, -Math.PI/2);
         ctx.fill();
+        
+        // Внутренняя часть
+        ctx.fillStyle = 'rgba(255,255,255,0.2)';
+        ctx.fillRect(this.side === 1 ? -2 : -2, -this.r, 4, this.r*2);
+        
         ctx.restore();
     }
 }
 
 function startGame() {
-    unlockAudio();
-    score = 0; fruits = []; particles = []; trail = []; isPlaying = true;
+    AudioEngine.init();
+    AudioEngine.playAmbient();
+    
+    score = 0; fruits = []; particles = []; isPlaying = true;
     document.getElementById('menu').classList.add('hidden');
     document.getElementById('over').classList.add('hidden');
     document.getElementById('game-ui').classList.remove('hidden');
@@ -158,137 +259,145 @@ function startGame() {
     loop();
 }
 
-function playSound(sound) {
-    if (!audioUnlocked) return;
-    sound.currentTime = 0;
-    sound.play().catch(() => {});
-    if (navigator.vibrate) navigator.vibrate(30);
-}
-
-function slice(fruit, index) {
-    if (fruit.type === 'bomb') {
+function slice(f, i) {
+    if(f.type === 'bomb') {
         isPlaying = false;
-        playSound(bombSound);
-        if (score > best) {
-            best = score;
-            localStorage.setItem('fn_best', best);
-            document.getElementById('best').innerText = best;
-        }
+        AudioEngine.playBoom();
+        document.body.classList.add('shake-effect');
+        setTimeout(() => document.body.classList.remove('shake-effect'), 500);
+        
+        if(score > best) { best = score; localStorage.setItem('fn_best_plus', best); }
         document.getElementById('final-score').innerText = score;
         document.getElementById('over').classList.remove('hidden');
-        music.pause();
         return;
     }
-
+    
     score++;
+    AudioEngine.playSlice();
     document.getElementById('score').innerText = score;
-    playSound(sliceSound);
-    playSound(splashSound);
-
-    fruits.splice(index, 1);
-    particles.push(new Half(fruit, 1), new Half(fruit, -1));
-
-    for (let i = 0; i < 25; i++) {
+    fruits.splice(i, 1);
+    
+    // Половинки
+    particles.push(new Half(f, 1), new Half(f, -1));
+    
+    // Брызги сока
+    for(let j=0; j<15; j++) {
         particles.push({
-            x: fruit.x, y: fruit.y,
-            vx: (Math.random() - 0.5) * 20, vy: (Math.random() - 0.8) * 20,
-            r: Math.random() * 10 + 4, c: fruit.color, life: 1,
-            update() { this.x += this.vx; this.y += this.vy; this.vy += 0.4; this.life -= 0.03; },
-            draw() {
-                ctx.globalAlpha = this.life;
-                ctx.fillStyle = this.c;
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.r, 0, Math.PI*2);
-                ctx.fill();
+            x: f.x, y: f.y, 
+            vx: (Math.random()-0.5)*12, 
+            vy: (Math.random()-0.5)*12,
+            r: Math.random()*6 + 2, 
+            c: f.color, 
+            l: 1,
+            update() { this.x += this.vx; this.y += this.vy; this.vy += 0.2; this.l -= 0.02; },
+            draw() { 
+                ctx.globalAlpha = this.l; 
+                ctx.fillStyle = this.c; 
+                ctx.beginPath(); 
+                ctx.arc(this.x, this.y, this.r, 0, Math.PI*2); 
+                ctx.fill(); 
+                ctx.globalAlpha = 1; 
             }
         });
     }
 }
 
 function loop() {
-    if (!isPlaying) return;
+    if(!isPlaying) return;
     frames++;
-    ctx.clearRect(0, 0, W, H);
+    
+    // Очистка с легким шлейфом
+    ctx.fillStyle = 'rgba(20, 30, 48, 0.4)';
+    ctx.fillRect(0, 0, canvasW, canvasH);
 
-    if (frames % 50 === 0) fruits.push(new Fruit());
+    // Частота появления фруктов увеличивается со временем
+    let spawnRate = Math.max(20, 60 - Math.floor(score / 5));
+    if(frames % spawnRate === 0) fruits.push(new Fruit());
 
-    // Обновление и отрисовка фруктов + проверка разреза
-    for (let i = fruits.length - 1; i >= 0; i--) {
-        const f = fruits[i];
-        f.update();
-        f.draw();
-
-        // Проверка пересечения с траекторией меча
-        if (trail.length > 2) {
-            for (let j = 1; j < trail.length; j++) {
-                const p1 = trail[j-1], p2 = trail[j];
-                const dist = distanceToSegment(f.x, f.y, p1.x, p1.y, p2.x, p2.y);
-                if (dist < f.r + 8) {
-                    slice(f, i);
-                    break;
-                }
+    // Обновление фруктов
+    for(let i = fruits.length-1; i>=0; i--) {
+        let f = fruits[i];
+        f.update(); f.draw();
+        
+        if(blade.length > 1) {
+            for(let j=0; j<blade.length-1; j++) {
+                let d = Math.hypot(f.x - blade[j].x, f.y - blade[j].y);
+                if(d < f.r + 5) { slice(f, i); break; }
             }
         }
-
-        if (f.y > H + 150) fruits.splice(i, 1);
+        if(f.y > canvasH + 100) fruits.splice(i, 1);
     }
 
-    // Частицы
-    for (let i = particles.length - 1; i >= 0; i--) {
-        const p = particles[i];
-        p.update();
-        p.draw();
-        if (p.life <= 0 || p.y > H + 150) particles.splice(i, 1);
+    // Обновление эффектов
+    for(let i = particles.length-1; i>=0; i--) {
+        let p = particles[i];
+        p.update(); p.draw();
+        if(p.y > canvasH + 100 || (p.l !== undefined && p.l <= 0) || (p.life !== undefined && p.life <= 0)) {
+            particles.splice(i, 1);
+        }
     }
 
-    // Отрисовка следа меча
-    if (trail.length > 1) {
-        ctx.strokeStyle = '#00ffff';
-        ctx.lineWidth = 10;
+    // Отрисовка лезвия
+    if(blade.length > 1) {
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = '#0ff';
+        ctx.strokeStyle = '#fff';
+        ctx.lineWidth = 6;
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
-        ctx.shadowBlur = 30;
-        ctx.shadowColor = '#00ffff';
-        ctx.beginPath();
-        ctx.moveTo(trail[0].x, trail[0].y);
-        for (let p of trail) ctx.lineTo(p.x, p.y);
+        ctx.beginPath(); 
+        ctx.moveTo(blade[0].x, blade[0].y);
+        for(let k=1; k<blade.length; k++) {
+            ctx.lineTo(blade[k].x, blade[k].y);
+        }
         ctx.stroke();
+        ctx.shadowBlur = 0;
     }
-
+    
     requestAnimationFrame(loop);
 }
 
-// Вспомогательная функция расстояния от точки до отрезка
-function distanceToSegment(px, py, x1, y1, x2, y2) {
-    const dx = x2 - x1, dy = y2 - y1;
-    const l2 = dx*dx + dy*dy;
-    if (l2 === 0) return Math.hypot(px - x1, py - y1);
-    let t = ((px - x1) * dx + (py - y1) * dy) / l2;
-    t = Math.max(0, Math.min(1, t));
-    return Math.hypot(px - (x1 + t * dx), py - (y1 + t * dy));
-}
+// Универсальный ввод для мобилок и ПК
+const handleInput = (e) => {
+    // Останавливаем стандартное поведение, чтобы не дергался экран
+    if (e.cancelable) e.preventDefault();
+    
+    const rect = canvas.getBoundingClientRect();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    
+    const x = clientX - rect.left;
+    const y = clientY - rect.top;
 
-// Надёжная обработка ввода (мышь + тач)
-const pointer = { x: 0, y: 0, down: false };
-
-function updateTrail(x, y) {
-    pointer.x = x; pointer.y = y;
-    if (isPlaying) {
-        trail.push({ x, y });
-        if (trail.length > 20) trail.shift();
+    if(e.type.includes('start') || e.type.includes('down')) {
+        blade = [];
     }
-}
+    
+    // Проверяем нажата ли кнопка (для мыши) или идет ли касание
+    if(isPlaying && (e.buttons > 0 || e.type.includes('touch'))) {
+        blade.push({x, y});
+        if(blade.length > 12) blade.shift();
+    } else {
+        blade = [];
+    }
+};
 
-window.addEventListener('mousedown', e => { pointer.down = true; updateTrail(e.clientX, e.clientY); unlockAudio(); });
-window.addEventListener('mousemove', e => { if (pointer.down) updateTrail(e.clientX, e.clientY); });
-window.addEventListener('mouseup', () => { pointer.down = false; trail = []; });
+// Исправлено: используем pointerdown для кнопок, чтобы срабатывало везде
+document.getElementById('playBtn').addEventListener('pointerdown', (e) => {
+    e.stopPropagation();
+    startGame();
+});
 
-window.addEventListener('touchstart', e => { unlockAudio(); for (let t of e.touches) updateTrail(t.clientX, t.clientY); }, { passive: false });
-window.addEventListener('touchmove', e => { e.preventDefault(); trail = []; for (let t of e.touches) updateTrail(t.clientX, t.clientY); }, { passive: false });
-window.addEventListener('touchend', () => { trail = []; });
+document.getElementById('restartBtn').addEventListener('pointerdown', (e) => {
+    e.stopPropagation();
+    startGame();
+});
 
-document.getElementById('playBtn').onclick = startGame;
-document.getElementById('restartBtn').onclick = startGame;
+// События для игры
+['mousedown', 'mousemove', 'mouseup', 'touchstart', 'touchmove', 'touchend'].forEach(evt => {
+    window.addEventListener(evt, handleInput, {passive: false});
+});
+
 </script>
 </body>
 </html>
